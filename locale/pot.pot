@@ -1,0 +1,37 @@
+# Copyright (C) 2015 clubCore
+# This file is distributed under the same license as the clubCore package.
+msgid ""
+msgstr ""
+"Project-Id-Version: clubCore 0.0.1\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/clubCore\n"
+"POT-Creation-Date: 2015-01-04 16:22:12+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2015-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: clubCore.php:63 clubCore.php:64
+msgid "Club"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "clubCore"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://URI_Of_Page_Describing_Plugin_and_Updates"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "A brief description of the plugin."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "julbrygd"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://URI_Of_The_Plugin_Author"
+msgstr ""

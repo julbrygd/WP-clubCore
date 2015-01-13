@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clubCore 0.0.1\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/clubCore\n"
-"POT-Creation-Date: 2015-01-04 16:22:12+00:00\n"
+"POT-Creation-Date: 2015-01-12 19:13:38+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,8 +12,52 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: clubCore.php:63 clubCore.php:64
+#: clubCore.php:74
 msgid "Club"
+msgstr ""
+
+#: clubCore.php:77
+msgid "Club Berechigungen"
+msgstr ""
+
+#: pages/rights/roles.php:19
+msgid "Namen"
+msgstr ""
+
+#: pages/rights/roles.php:20
+msgid "Anzeige Namen"
+msgstr ""
+
+#: pages/rights/roles.php:21
+msgid "Erbt von"
+msgstr ""
+
+#: pages/rights/roles.php:39 pages/rights/roles.php:65
+msgid "Speichern"
+msgstr ""
+
+#: pages/rights/roles.php:42
+msgid "Abbrechen"
+msgstr ""
+
+#: pages/rights/roles.php:52
+msgid "Neu"
+msgstr ""
+
+#: pages/rights/roles.php:58
+msgid "Neue Rolle"
+msgstr ""
+
+#: pages/rights/roles.php:64
+msgid "Schliessen"
+msgstr ""
+
+#: pages/rights.php:10
+msgid "Rollen"
+msgstr ""
+
+#: pages/rights.php:11
+msgid "Rechte"
 msgstr ""
 
 #. Plugin Name of the plugin/theme

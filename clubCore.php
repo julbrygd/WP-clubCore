@@ -28,12 +28,13 @@
  */
 
 defined('ABSPATH') or die("No script kiddies please!");
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "model" .DIRECTORY_SEPARATOR . "Role.php";
 
 class ClubCore {
 
     protected $PLUGIN_DIR;
     protected $INSTALL_FILE;
-    protected static $TEXT_DOMAIN = "clubCore";
+    public static $TEXT_DOMAIN = "clubCore";
     protected static $INSTANCE = NULL;
     protected $_menuSlug = "clubCore_menu";
     protected $vars = array();
@@ -60,16 +61,30 @@ class ClubCore {
         $this->table_name_caps_roles = $wpdb->prefix . "clubCore_caps_roles";
         register_activation_hook(__FILE__, array(&$this, 'clubCore_install'));
         add_action('admin_menu', array(&$this, "add_menu"));
+        add_action( 'wp_ajax_club_save_role', array("Role", "saveAjaxObj") );
+        add_action("wp_ajax_club_delete_role", array("Role", "deleteAjaxObj"));
+        $this->adminInit();
+    }
+
+    public function adminInit() {
+        add_action('admin_enqueue_scripts', array(&$this, "loadStylesScripts"));
     }
 
     public function add_menu() {
         add_menu_page(
                 __("Club", self::$TEXT_DOMAIN), __("Club", self::$TEXT_DOMAIN), 'edit_others_posts', $this->menuSlug, array(&$this, "menu_index")
         );
+        add_submenu_page(
+                $this->menuSlug, __("Club Berechigungen", self::$TEXT_DOMAIN), __("Club Berechigungen", self::$TEXT_DOMAIN), 'edit_others_posts', "club_menu_rights", array(&$this, "menu_rights"));
     }
 
     public function menu_index() {
         echo "Test";
+    }
+
+    public function menu_rights() {
+        
+        include $this->PLUGIN_DIR . DIRECTORY_SEPARATOR . "pages/rights.php";
     }
 
     public function addRole($name, $displayName, $parrent) {
@@ -81,9 +96,9 @@ class ClubCore {
         } else {
             $wpdb->insert(
                     $this->table_name_roles, array(
-                        "name" => $name,
-                        "displayName" => $displayName,
-                        "parrent" => $parrent
+                "name" => $name,
+                "displayName" => $displayName,
+                "parrent" => $parrent
                     )
             );
             $rid = $wpdb->insert_id;
@@ -136,6 +151,31 @@ class ClubCore {
         dbDelta($sql);
 
         //$this->addRole("clubAdmin", "Club Admin", "administrator");
+    }
+
+    public function loadStylesScripts() {
+        $static = plugin_dir_url(__FILE__) . "static";
+        
+        //wp_enqueue_style("wp_admin_bootstrap", $plugin_css_url . DIRECTORY_SEPARATOR . "wordpress.css");
+        //wp_enqueue_script("wp_admin_bootstrap_script", $plugin_js_url . DIRECTORY_SEPARATOR . "bootstrap.min.js", array("jquery"));
+        wp_register_script("club_jquery", $static . "/jquery.js");
+        wp_register_script("club_jquery_ui", $static . "/jquery-ui.min.js", array("club_jquery"));
+        wp_register_script("club_bootstrap_js", $static . "/js/bootstrap.min.js", array("club_jquery"));
+        wp_register_style("club_jquery_ui_css", $static . "/jquery-ui.css");
+        wp_register_script("club_local_script", $static . "/js/localized.js", array("club_jquery"));
+        wp_register_style("club_admin_css", $static . "/style.css");
+        wp_register_style("club_admin_bootstrap_css", $static . "/css/wordpress.css");
+        wp_enqueue_script("club_jquery_ui");
+        wp_enqueue_script("club_bootstrap_js");
+        $l10n = array(
+            "role_delete" => __("Sind sie sicher, dass sie die Rolle %%s löschen wollen?", self::$TEXT_DOMAIN)
+        );
+        wp_enqueue_script("club_bootstrap_js");
+        wp_localize_script("club_local_script", "club_local", $l10n);
+        wp_enqueue_script("club_local_script");
+        wp_enqueue_style("club_jquery_ui_css");
+        wp_enqueue_style("club_admin_css", array("club_jquery_ui_css"));
+        wp_enqueue_style("club_admin_bootstrap_css");
     }
 
 }

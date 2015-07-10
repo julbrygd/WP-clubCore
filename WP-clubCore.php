@@ -79,7 +79,7 @@ class ClubCore {
     }
 
     public function menu_index() {
-        echo "Test";
+        include $this->PLUGIN_DIR . DIRECTORY_SEPARATOR . "pages/index.php";
     }
 
     public function menu_rights() {

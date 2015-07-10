@@ -1,6 +1,6 @@
-== jungscharProgramm ===
+== WP-cluCore ===
 Contributors: julbrygd
-Tags: jungschar club
+Tags: club
 Requires at least: 4.1
 Tested up to: 4.1
 Stable tag: trunk

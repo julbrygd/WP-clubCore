@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "clubCore.php";
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "WP-clubCore.php";
 
 class Role {
 
@@ -123,7 +123,14 @@ class Role {
             $role->displayName = $_POST["displayName"];
             $role->parrent = $_POST["parrent"];
             $ret = $role->save();
-            if (is_bool($ret) && $ret == false) {
+            $wprole = get_role($role->name);
+            if($wprole != null){
+                remove_role($role->name);
+            }
+            $parrent = get_role($role->parrent);
+            add_role($role->name, $role->displayName, $parrent->capabilities);
+            $wprole = get_role($role->name);
+            if ((is_bool($ret) && $ret == false) && $wprole == NULL){
                 echo "error";
             } else {
                 echo $role->toJson();

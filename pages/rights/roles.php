@@ -47,6 +47,15 @@ foreach ($r as $key => $value) {
                         </span>
                     </td>
                 </tr>
+                <!--
+                <tr>
+                    <td colspan="4">
+                        <?php
+                            var_dump(get_role($role->name));
+                        ?>
+                    </td>
+                </tr>
+                -->
             <?php } ?>
         </tbody>
     </table>

@@ -29,6 +29,7 @@
 
 defined('ABSPATH') or die("No script kiddies please!");
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "model" .DIRECTORY_SEPARATOR . "Role.php";
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "model" .DIRECTORY_SEPARATOR . "Cap.php";
 
 class ClubCore {
 

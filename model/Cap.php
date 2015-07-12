@@ -69,6 +69,8 @@ class Cap {
             $cap = $this;
         }
         if ($cap->cid == -1) {
+            $adm = get_role('Administrator');
+            $adm->add_cap($cap->name);
             return $wpdb->insert(
                             ClubCore::getInstance()->table_name_caps, array(
                         "name" => $cap->name,
@@ -85,6 +87,25 @@ class Cap {
     public function delete(){
         global $wpdb;
         return $wpdb->delete( ClubCore::getInstance()->table_name_roles, array( 'cid' => $this->_id ), array( '%d' ) );
+    }
+    
+    public static function saveChanges() {
+       
+        if (isset($_POST["action"]) && $_POST["action"] == "club_save_cap_changes") {
+            if(isset($_POST["changes"])) {
+                foreach ($_POST['changes'] as $cap => $data) {
+                    foreach ($data as $role=>$granted){
+                        $wpRole= get_role( $role );
+                        if($granted){
+                            $wpRole->add_cap($cap, TRUE);
+                        } else {
+                            $wpRole->remove_cap($cap);
+                        }
+                    }
+                }
+            }
+        }
+        wp_die();
     }
 
 }

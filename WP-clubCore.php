@@ -3,7 +3,7 @@
 /**
  * Plugin Name: clubCore
  * Plugin URI: http://URI_Of_Page_Describing_Plugin_and_Updates
- * Description: A brief description of the plugin.
+ * Description: This Plugin provide the base for Club plugins
  * Version: 0.0.1
  * Author: julbrygd
  * Author URI: http://URI_Of_The_Plugin_Author
@@ -64,6 +64,7 @@ class ClubCore {
         add_action('admin_menu', array(&$this, "add_menu"));
         add_action( 'wp_ajax_club_save_role', array("Role", "saveAjaxObj") );
         add_action("wp_ajax_club_delete_role", array("Role", "deleteAjaxObj"));
+        add_action("wp_ajax_club_save_cap_changes", array("Cap", "saveChanges"));
         $this->adminInit();
     }
 
@@ -138,20 +139,10 @@ class ClubCore {
             PRIMARY KEY  (cid)
           ) $charset_collate;";
 
-        $sql[] = "CREATE TABLE $this->table_name_caps_roles (
-            rid INT NOT NULL,
-            cid INT NOT NULL,
-            INDEX role_index (rid),
-            INDEX cap_index (cid),
-            FOREIGN KEY (rid) REFERENCES $this->table_name_roles(rid),
-            FOREIGN KEY (cid) REFERENCES $this->table_name_caps(cid),
-            PRIMARY KEY  (rid, cid)
-          ) $charset_collate;";
-
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta($sql);
 
-        //$this->addRole("clubAdmin", "Club Admin", "administrator");
+        $this->addRole("clubAdmin", "Club Admin", "administrator");
     }
 
     public function loadStylesScripts() {

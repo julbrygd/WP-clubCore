@@ -61,6 +61,7 @@ class ClubCore {
         $this->table_name_caps = $wpdb->prefix . "clubCore_caps";
         $this->table_name_caps_roles = $wpdb->prefix . "clubCore_caps_roles";
         register_activation_hook(__FILE__, array(&$this, 'clubCore_install'));
+        register_deactivation_hook(__FILE__, array(&$this, 'clubCore_uninstall'));
         add_action('admin_menu', array(&$this, "add_menu"));
         add_action( 'wp_ajax_club_save_role', array("Role", "saveAjaxObj") );
         add_action("wp_ajax_club_delete_role", array("Role", "deleteAjaxObj"));
@@ -78,6 +79,16 @@ class ClubCore {
         );
         add_submenu_page(
                 $this->menuSlug, __("Club Berechigungen", self::$TEXT_DOMAIN), __("Club Berechigungen", self::$TEXT_DOMAIN), 'edit_others_posts', "club_menu_rights", array(&$this, "menu_rights"));
+        foreach(get_option('club_modules') as $key=>$mod){
+            add_submenu_page(
+                    $this->menuSlug, 
+                    _($mod->getName(), $mod->getTextdomain()), 
+                    _($mod->getName(), $mod->getTextdomain()), 
+                    $mod->getCap(), 
+                    $mod->getSlug(),
+                    array($mod->getObject(), $mod->getMethod())
+                    );
+        }
     }
 
     public function menu_index() {
@@ -143,6 +154,31 @@ class ClubCore {
         dbDelta($sql);
 
         $this->addRole("clubAdmin", "Club Admin", "administrator");
+        $cap = new Cap('club_admin');
+        error_log(print_r($cap, true));
+        $cap->save();
+    }
+    
+    public function clubCore_uninstall(){
+        global $wpdb;
+        $roles = new WP_Roles();
+        $caps = Cap::findAll();
+        foreach(Role::findAll() as $key=>$role){
+            $role->delete();
+            remove_role($role->name);
+        }
+        $names = $roles->get_names();
+        foreach($names as $i=> $name){
+            foreach($caps as $key=> $cap){
+                $roles->remove_cap($name, $cap->name);
+            }
+        }
+        foreach($caps as $key=> $cap){
+            $cap->delete();
+        }
+        error_log($wpdb->query('DROP TABLE '.$this->table_name_roles .';'));
+        error_log($wpdb->query('DROP TABLE '.$this->table_name_caps .';'));
+        
     }
 
     public function loadStylesScripts() {
@@ -170,6 +206,11 @@ class ClubCore {
         wp_enqueue_style("club_admin_bootstrap_css");
     }
 
+    public function addModule($module) {
+        $modules = get_option('club_modules');
+        $modules[$module->id] = $module;
+        update_option('club_modules', $modules);
+    }
 }
 
 ClubCore::getInstance();

@@ -5,6 +5,8 @@ include_once $c->PLUGIN_DIR . DIRECTORY_SEPARATOR . "model" . DIRECTORY_SEPARATO
 <div class="bootstrap-wrapper">
     <h1>Club Administration - Berechtigung</h1>
 </div>
+<div id="club_messages"></div>
+<br />
 <div id="tabs">
     <ul>
         <li><a href="#rights"><?php _e("Rollen", ClubCore::$TEXT_DOMAIN) ?></a></li>
@@ -25,5 +27,6 @@ include_once $c->PLUGIN_DIR . DIRECTORY_SEPARATOR . "model" . DIRECTORY_SEPARATO
 <script>
     $(function () {
         $("#tabs").tabs();
+        $('#club_messages').hide();
     });
 </script>

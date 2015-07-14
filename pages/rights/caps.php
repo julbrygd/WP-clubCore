@@ -52,7 +52,9 @@
 
 <script type="text/javascript">
     var wpAjaxUrl = "<?php echo admin_url('admin-ajax.php') ?>";
-    var capChanges = {}
+    var capChanges = {};
+    var capNonce = "<?php echo wp_create_nonce("club_save_cap_changes") ?>";
+    var capSaveMessage = "<?php _e("Berechtigungen wurden gespeichert.", ClubCore::$TEXT_DOMAIN) ?>";
 
     $(document).ready(function () {
         
@@ -74,11 +76,20 @@
             event.preventDefault();
             var data = {
                 'action': 'club_save_cap_changes',
-                changes: capChanges
+                changes: capChanges,
+                nonce: capNonce
             };
             $.post(wpAjaxUrl, data, function (response) {
-                if (response === "error") {
+                if (response['error'] !== undefined) {
                     alert(JSON.stringify(response));
+                } else {
+                    capNonce = response['nonce'];
+                    var div = $('<div>').addClass('updated');
+                    div.html(capSaveMessage);
+                    $('#club_messages').append(div).show();
+                    setTimeout(function(){
+                        $(div).hide();
+                    },10000);
                 }
             });
         });

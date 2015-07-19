@@ -28,8 +28,9 @@
  */
 
 defined('ABSPATH') or die("No script kiddies please!");
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "model" .DIRECTORY_SEPARATOR . "Role.php";
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "model" .DIRECTORY_SEPARATOR . "Cap.php";
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "model" . DIRECTORY_SEPARATOR . "Role.php";
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "model" . DIRECTORY_SEPARATOR . "Cap.php";
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "model" . DIRECTORY_SEPARATOR . "ClubModule.php";
 
 class ClubCore {
 
@@ -39,6 +40,7 @@ class ClubCore {
     protected static $INSTANCE = NULL;
     protected $_menuSlug = "clubCore_menu";
     protected $vars = array();
+    public static $MODEL_KEY = 'club_model';
 
     public static function getInstance() {
         if (self::$INSTANCE == NULL) {
@@ -63,7 +65,7 @@ class ClubCore {
         register_activation_hook(__FILE__, array(&$this, 'clubCore_install'));
         register_deactivation_hook(__FILE__, array(&$this, 'clubCore_uninstall'));
         add_action('admin_menu', array(&$this, "add_menu"));
-        add_action( 'wp_ajax_club_save_role', array("Role", "saveAjaxObj") );
+        add_action('wp_ajax_club_save_role', array("Role", "saveAjaxObj"));
         add_action("wp_ajax_club_delete_role", array("Role", "deleteAjaxObj"));
         add_action("wp_ajax_club_save_cap_changes", array("Cap", "saveChanges"));
         $this->adminInit();
@@ -79,16 +81,8 @@ class ClubCore {
         );
         add_submenu_page(
                 $this->menuSlug, __("Club Berechigungen", self::$TEXT_DOMAIN), __("Club Berechigungen", self::$TEXT_DOMAIN), 'edit_others_posts', "club_menu_rights", array(&$this, "menu_rights"));
-        foreach(get_option('club_modules') as $key=>$mod){
-            add_submenu_page(
-                    $this->menuSlug, 
-                    _($mod->getName(), $mod->getTextdomain()), 
-                    _($mod->getName(), $mod->getTextdomain()), 
-                    $mod->getCap(), 
-                    $mod->getSlug(),
-                    array($mod->getObject(), $mod->getMethod())
-                    );
-        }
+        add_submenu_page(
+                $this->menuSlug, __("Club Modules", self::$TEXT_DOMAIN), __("Club Modules", self::$TEXT_DOMAIN), 'club_admin', "club_menu_module", array(&$this, "menu_module"));
     }
 
     public function menu_index() {
@@ -96,8 +90,12 @@ class ClubCore {
     }
 
     public function menu_rights() {
-        
+
         include $this->PLUGIN_DIR . DIRECTORY_SEPARATOR . "pages/rights.php";
+    }
+
+    public function menu_module() {
+        include $this->PLUGIN_DIR . DIRECTORY_SEPARATOR . "pages/module.php";
     }
 
     public function addRole($name, $displayName, $parrent) {
@@ -157,35 +155,34 @@ class ClubCore {
         $cap = new Cap('club_admin');
         error_log(print_r($cap, true));
         $cap->save();
+        add_option(self::$MODEL_KEY, array(new ClubModule('clubList', false, 'ClubList', plugin_dir_path( __FILE__ ) . DIRECTORY_SEPARATOR . 'ClubList.php')));
     }
-    
-    public function clubCore_uninstall(){
+
+    public function clubCore_uninstall() {
         global $wpdb;
         $roles = new WP_Roles();
         $caps = Cap::findAll();
-        foreach(Role::findAll() as $key=>$role){
+        foreach (Role::findAll() as $key => $role) {
             $role->delete();
             remove_role($role->name);
         }
         $names = $roles->get_names();
-        foreach($names as $i=> $name){
-            foreach($caps as $key=> $cap){
+        foreach ($names as $i => $name) {
+            foreach ($caps as $key => $cap) {
                 $roles->remove_cap($name, $cap->name);
             }
         }
-        foreach($caps as $key=> $cap){
+        foreach ($caps as $key => $cap) {
             $cap->delete();
         }
-        error_log($wpdb->query('DROP TABLE '.$this->table_name_roles .';'));
-        error_log($wpdb->query('DROP TABLE '.$this->table_name_caps .';'));
-        
+        delete_option(self::$MODEL_KEY);
     }
 
     public function loadStylesScripts() {
         $static = plugin_dir_url(__FILE__) . "static";
-        
-        //wp_enqueue_style("wp_admin_bootstrap", $plugin_css_url . DIRECTORY_SEPARATOR . "wordpress.css");
-        //wp_enqueue_script("wp_admin_bootstrap_script", $plugin_js_url . DIRECTORY_SEPARATOR . "bootstrap.min.js", array("jquery"));
+
+//wp_enqueue_style("wp_admin_bootstrap", $plugin_css_url . DIRECTORY_SEPARATOR . "wordpress.css");
+//wp_enqueue_script("wp_admin_bootstrap_script", $plugin_js_url . DIRECTORY_SEPARATOR . "bootstrap.min.js", array("jquery"));
         wp_register_script("club_jquery", $static . "/jquery.js");
         wp_register_script("club_jquery_ui", $static . "/jquery-ui.min.js", array("club_jquery"));
         wp_register_script("club_bootstrap_js", $static . "/js/bootstrap.min.js", array("club_jquery"));
@@ -206,11 +203,27 @@ class ClubCore {
         wp_enqueue_style("club_admin_bootstrap_css");
     }
 
-    public function addModule($module) {
-        $modules = get_option('club_modules');
-        $modules[$module->id] = $module;
-        update_option('club_modules', $modules);
+    public function addModule($name, $class, $file) {
+        if (file_exists($file)) {
+            include $file;
+            $interfaces = class_implements($name);
+            if ($interfaces && in_array('ClubClass', $interfaces)) {
+                $module = new ClubModule($name, FALSE, $class, $file);
+                $mods = get_option(self::$MODEL_KEY);
+                $found = FALSE;
+                foreach ($mods as $key => $m) {
+                    if ($m->name == $name) {
+                        $found = TRUE;
+                    }
+                }
+                if (!$found) {
+                    $mods[] = $module;
+                    update_option(self::$MODEL_KEY, $mods);
+                }
+            }
+        }
     }
+
 }
 
 ClubCore::getInstance();

@@ -84,12 +84,12 @@
                     alert(JSON.stringify(response));
                 } else {
                     capNonce = response['nonce'];
-                    var div = $('<div>').addClass('updated');
+                    var div = $('<div>').addClass('updated').addClass('notice').addClass('is-dismissible');
                     div.html(capSaveMessage);
                     $('#club_messages').append(div).show();
                     setTimeout(function(){
                         $(div).hide();
-                    },10000);
+                    },5000);
                 }
             });
         });
